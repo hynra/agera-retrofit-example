@@ -9,12 +9,16 @@ import com.google.android.agera.Functions;
 import com.google.android.agera.Repository;
 import com.google.android.agera.Result;
 import com.google.android.agera.Updatable;
+
+import hynra.com.ageraretrofitexample.models.Gank;
+
 import me.drakeet.retrofit2.adapter.agera.AgeraCallAdapterFactory;
 import me.drakeet.retrofit2.adapter.agera.Ageras;
 import okhttp3.OkHttpClient;
 import retrofit2.HttpException;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import hynra.com.ageraretrofitexample.services.CallService;
 
 public class MainActivity extends AppCompatActivity implements Updatable {
 
@@ -45,16 +49,16 @@ public class MainActivity extends AppCompatActivity implements Updatable {
                 .addCallAdapterFactory(AgeraCallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        final Service service = retrofit.create(Service.class);
+        final CallService callService = retrofit.create(CallService.class);
 
         repository1 = Ageras.goToNetworkExecutorWithInitialValue(INITIAL_VALUE)
-                .attemptGetFrom(service.android())
+                .attemptGetFrom(callService.android())
                 .orSkip()
                 .thenTransform(gankToTitleArray)
                 .compile();
 
         repository2 = Ageras.goToNetworkExecutorWithInitialValue(INITIAL_VALUE)
-                .attemptGetFrom(service.android(2))
+                .attemptGetFrom(callService.android(2))
                 .orSkip()
                 .attemptTransform(response -> {
                     Result<Gank> result;
