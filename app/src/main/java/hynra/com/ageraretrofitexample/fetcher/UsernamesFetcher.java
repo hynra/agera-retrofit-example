@@ -1,42 +1,42 @@
 package hynra.com.ageraretrofitexample.fetcher;
 
-import android.os.Handler;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
+
+import hynra.com.ageraretrofitexample.models.GithubUser;
+import hynra.com.ageraretrofitexample.services.GithubService;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class UsernamesFetcher {
 
-    public static int NUMBER_OF_USERS = 4;
 
     public void getUsernames(final UsernamesCallback callback) {
-        if (NUMBER_OF_USERS < 0) {
-            callback.setError();
-            return;
-        }
-
-        Handler h = new Handler();
-        Runnable r = () -> {
-            // Create a fake list of usernames
-            String name1 = "Joe";
-            String name2 = "Amanda";
-            final List<String> usernames = new ArrayList<String>();
-            Random random = new Random();
-            for (int i = 0; i < NUMBER_OF_USERS; i++) {
-                int number = random.nextInt(50);
-                if (System.currentTimeMillis() % 2 == 0) {
-                    usernames.add(name1 + number);
-                } else {
-                    usernames.add(name2 + number);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.github.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        GithubService service = retrofit.create(GithubService.class);
+        service.listUser().enqueue(new Callback<List<GithubUser>>() {
+            @Override
+            public void onResponse(Call<List<GithubUser>> call, Response<List<GithubUser>> response) {
+                String[] strs = new String[response.body().size()];
+                for(int i = 0; i < strs.length; i++){
+                    strs[i] = response.body().get(i).getLogin();
                 }
+                callback.setUsernames(strs);
             }
-            callback.setUsernames(usernames.toArray(new String[usernames.size()]));
-        };
 
-        // Simulate network latency
-        h.postDelayed(r, 2000);
+            @Override
+            public void onFailure(Call<List<GithubUser>> call, Throwable t) {
+                t.fillInStackTrace();
+                callback.setError();
+            }
+        });
     }
 
     public interface UsernamesCallback {

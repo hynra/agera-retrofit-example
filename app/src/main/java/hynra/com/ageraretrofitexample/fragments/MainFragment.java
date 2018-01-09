@@ -97,6 +97,9 @@ public class MainFragment extends Fragment implements Updatable {
                     tmpString.add(usernamesRepository.get()[i]);
                 }
 
+                Toast.makeText(getActivity(), "add "+usernamesRepository.get().length+" user", Toast.LENGTH_LONG)
+                        .show();
+
                 allUsernames = new String[tmpString.size()];
                 for(int i = 0; i < allUsernames.length; i++){
                     allUsernames[i] = tmpString.get(i);
